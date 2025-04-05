@@ -9,7 +9,7 @@ public class Jump : MonoBehaviour
         actionData.OnPressEvent += () => Debug.Log("Jump");
         actionData.OnHoldEvent += () => Debug.Log("Hold Jump");
 
-        var button = InputManager.Instance.GetInputButton();
+        var button = InputManager.Inst.GetInputButton();
         button.SetButtonAction(actionData);
     }
 }

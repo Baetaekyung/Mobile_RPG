@@ -2,13 +2,13 @@ using UnityEngine;
 
 public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {
-    public enum SingletonType
+    public enum ESingletonType
     {
         DEFAULT,
         DONTDESTROY,
     }
 
-    public enum SingletonDebugType
+    public enum ESingletonDebugType
     {
         ALLOW_DEBUG,
         DISALLOW_DEBUG
@@ -18,10 +18,10 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 
     private static bool isShuttingDown = false;
 
-    [SerializeField] private SingletonType      singletonType;
-    [SerializeField] private SingletonDebugType debugType;
+    [SerializeField] private ESingletonType      singletonType;
+    [SerializeField] private ESingletonDebugType debugType;
 
-    public static T Instance
+    public static T Inst
     {
         get
         {
@@ -59,9 +59,10 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 
         gameObject.name = $"[Singleton] {typeof(T).Name}";
 
-        if(singletonType == SingletonType.DONTDESTROY)
+        if(singletonType == ESingletonType.DONTDESTROY)
             DontDestroyOnLoad(gameObject);
-        if(debugType == SingletonDebugType.DISALLOW_DEBUG)
+
+        if(debugType == ESingletonDebugType.DISALLOW_DEBUG)
             gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInHierarchy;
     }
 
@@ -73,8 +74,6 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     protected virtual void OnDestroy()
     {
         if (_instance == this)
-        {
             isShuttingDown = true;
-        }
     }
 }

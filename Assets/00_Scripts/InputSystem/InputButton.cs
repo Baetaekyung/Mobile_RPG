@@ -6,8 +6,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public class InputButton : MonoBehaviour, IPointerDownHandler
 {
-    [SerializeField] private TextMeshProUGUI   infoText;
-    [SerializeField] private Image             infoIcon;
+    [SerializeField] private TextMeshProUGUI infoText;
+    [SerializeField] private Image           infoIcon;
 
     private Button _button;
     private InputActionDataSO _inputActionData;
@@ -18,7 +18,7 @@ public class InputButton : MonoBehaviour, IPointerDownHandler
     {
         _button = GetComponent<Button>();
 
-        inputManaget = InputManager.Instance;
+        inputManaget = InputManager.Inst;
     }
 
     public void SetButtonAction(InputActionDataSO inputActionData)
@@ -43,10 +43,10 @@ public class InputButton : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if(inputManaget.inputActionData)
+        if(inputManaget.InputActionData)
         {
-            SetButtonAction(inputManaget.inputActionData);
-            inputManaget.inputActionData = null;
+            SetButtonAction(inputManaget.InputActionData);
+            inputManaget.InputActionData = null;
         }
     }
 
