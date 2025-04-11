@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerStateMachine
@@ -21,7 +22,7 @@ public class PlayerStateMachine
         if (_player.GetCanStateChange == false)
             return;
 
-        _currentState?.StateExit();
+        _currentState?.ExitState();
         SetState(newState);
     }
 

@@ -12,9 +12,9 @@ public class PlayerIdleState : PlayerGroundState
         _player.GetEntityCompo<PlayerMoveController>().StopImmediately();
     }
 
-    public override void StateExit()
+    public override void ExitState()
     {
-        base.StateExit();
+        base.ExitState();
     }
 
     public override void UpdateState()

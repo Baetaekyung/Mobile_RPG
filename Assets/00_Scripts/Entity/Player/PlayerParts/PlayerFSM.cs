@@ -1,11 +1,13 @@
 //Player Finate state machine
+
 public partial class Player
 {
     private PlayerStateMachine _stateMachine;
-    private bool               _canStateChange = true;
+    private bool _canStateChange = true;
 
     public PlayerStateMachine GetStateMachine => _stateMachine;
-    public bool               GetCanStateChange => _canStateChange;
+    public bool GetCanStateChange => _canStateChange;
+
 
     private void InitializeStateMachine()
     {

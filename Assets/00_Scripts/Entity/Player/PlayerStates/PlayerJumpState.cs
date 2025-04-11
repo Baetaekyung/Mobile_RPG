@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class PlayerJumpState : PlayerState
+public class PlayerJumpState : PlayerAirState
 {
     private PlayerMoveController _moveController;
 
@@ -21,12 +21,25 @@ public class PlayerJumpState : PlayerState
         JumpAction();
     }
 
+    public override void ExitState()
+    {
+        _player.GetEntityCompo<PlayerGroundChecker>().OnGroundHit -= HandleStateChangeToIdle;
+        _moveController.OnJump -= HandleStateChangeToJump;
+
+        base.ExitState();
+    }
+
+    public override void UpdateState()
+    {
+        base.UpdateState();
+    }
+
     private void JumpAction()
     {
         if (_moveController.CurrentJumpCount < _moveController.GetJumpData.JumpCount)
         {
             //윗 점프
-            if (_moveController.CurrentJumpCount == 0 
+            if (_moveController.CurrentJumpCount == 0
                 && InputManager.Inst.Direction == Vector2.up)
             {
                 _moveController.CurrentJumpCount = _moveController.GetJumpData.JumpCount; //Jump 못하게
@@ -45,7 +58,7 @@ public class PlayerJumpState : PlayerState
                 jumpActionData.x * InputManager.Inst.LastInputDirectionOnlyX,
                 jumpActionData.y).normalized;
 
-            if(_moveController.CurrentJumpCount > 0) //부드럽게 점프 하기 위함
+            if (_moveController.CurrentJumpCount > 0) //부드럽게 점프 하기 위함
                 _moveController.StopImmediately();
 
             _moveController.GetRbComponent.AddForce(
@@ -54,21 +67,6 @@ public class PlayerJumpState : PlayerState
 
             _moveController.CurrentJumpCount++;
         }
-
-        Debug.Log(_moveController.CurrentJumpCount);
-    }
-
-    public override void StateExit()
-    {
-        _player.GetEntityCompo<PlayerGroundChecker>().OnGroundHit -= HandleStateChangeToIdle;
-        _moveController.OnJump -= HandleStateChangeToJump;
-
-        base.StateExit();
-    }
-
-    public override void UpdateState()
-    {
-        base.UpdateState();
     }
 
     private void HandleStateChangeToIdle() => _stateMachine.ChangeState(EPlayerStateEnum.IDLE);

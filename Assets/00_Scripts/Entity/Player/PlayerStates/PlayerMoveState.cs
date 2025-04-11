@@ -27,8 +27,8 @@ public class PlayerMoveState : PlayerGroundState
         _moveController.MoveEntityXDirection(Mathf.RoundToInt(InputManager.Inst.Direction.x));
     }
 
-    public override void StateExit()
+    public override void ExitState()
     {
-        base.StateExit();
+        base.ExitState();
     }
 }

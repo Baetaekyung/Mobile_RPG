@@ -6,7 +6,7 @@ public partial class Player : Entity
     private PlayerMoveController _entityMoveController;
 
     protected override void Awake()
-    {
+    {   
         base.Awake();
 
         InitializeStateMachine();
@@ -14,6 +14,9 @@ public partial class Player : Entity
         _entityMoveController = GetEntityCompo<PlayerMoveController>();
     }
 
+    partial void Test();
+
+    
     private void Update()
     {
         _stateMachine.UpdateStateMachine();

@@ -36,7 +36,7 @@ public abstract class PlayerState
         OnBaseStateUpdate?.Invoke();
     }
 
-    public virtual void StateExit()
+    public virtual void ExitState()
     {
         #region Base 상속 확인
         bool hasBaseState = typeof(IBasePlayerState).IsAssignableFrom(GetType());
