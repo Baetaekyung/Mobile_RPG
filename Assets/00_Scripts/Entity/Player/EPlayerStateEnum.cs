@@ -4,5 +4,7 @@ public enum EPlayerStateEnum
 {
     IDLE,
     MOVE,
-    JUMP
+    JUMP,
+    ATTACK,
+    FALL
 }

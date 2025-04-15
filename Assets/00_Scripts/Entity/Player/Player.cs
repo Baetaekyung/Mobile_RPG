@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public partial class Player : Entity
@@ -13,8 +12,6 @@ public partial class Player : Entity
 
         _entityMoveController = GetEntityCompo<PlayerMoveController>();
     }
-
-    partial void Test();
 
     
     private void Update()

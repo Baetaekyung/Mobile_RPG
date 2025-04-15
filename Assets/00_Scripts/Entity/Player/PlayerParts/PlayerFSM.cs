@@ -3,6 +3,7 @@
 public partial class Player
 {
     private PlayerStateMachine _stateMachine;
+
     private bool _canStateChange = true;
 
     public PlayerStateMachine GetStateMachine => _stateMachine;
@@ -25,6 +26,14 @@ public partial class Player
         _stateMachine.AddState(
             EPlayerStateEnum.JUMP,
             new PlayerJumpState(this, _stateMachine, EPlayerStateEnum.JUMP));
+
+        _stateMachine.AddState(
+            EPlayerStateEnum.ATTACK,
+            new PlayerAttackState(this, _stateMachine, EPlayerStateEnum.ATTACK));
+
+        _stateMachine.AddState(
+            EPlayerStateEnum.FALL,
+            new PlayerFallState(this, _stateMachine, EPlayerStateEnum.FALL));
 
         _stateMachine.SetState(EPlayerStateEnum.IDLE);
     }

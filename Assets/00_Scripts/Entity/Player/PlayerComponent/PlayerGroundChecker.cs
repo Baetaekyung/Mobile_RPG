@@ -8,6 +8,8 @@ public class PlayerGroundChecker : EntityGroundChecker
     private PlayerMoveController _moveController;
     private Rigidbody2D _rbCompo;
 
+    public bool IsPlayerFalling => _canCast;
+
     public void Initialize(Entity entity)
     {
         _player = entity as Player;
@@ -33,5 +35,10 @@ public class PlayerGroundChecker : EntityGroundChecker
     private void OnDestroy()
     {
         OnGroundHit -= _moveController.InitJumpCount;
+    }
+
+    protected override void GroundCheckCasting()
+    {
+        base.GroundCheckCasting();
     }
 }

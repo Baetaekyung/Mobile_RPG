@@ -3,7 +3,7 @@ public enum EStatType
     //공통 스텟
     NONE = 0,
     ATTACK_POWER,       //공격력
-    HORSE_POWER,        //마력
+    MAGIC_POWER,        //마력
     DAMAGE,             //데미지
     FINAL_ATTACK,       //최종 데미지
     BOSS_DAMAGE,        //보스 데미지

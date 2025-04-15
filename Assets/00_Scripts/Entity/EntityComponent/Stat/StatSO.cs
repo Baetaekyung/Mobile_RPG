@@ -4,7 +4,8 @@ using UnityEngine;
 
 public delegate void StatChangeEventHandler();
 
-public class StatSO : MonoBehaviour
+[CreateAssetMenu(menuName = "SO/Stat/Stat")]
+public class StatSO : ScriptableObject
 {
     public event StatChangeEventHandler OnBaseStatValueChanged;
     public event StatChangeEventHandler OnAdditionalStatValueChanged;
@@ -20,8 +21,8 @@ public class StatSO : MonoBehaviour
 
     public EStatType GetStatType       => statType;
     public StatSO    GetRuntimeStat    => Instantiate(this);
-    public int       GetBaseStat       => baseStat;
-    public int       GetAdditionalStat => additionalStat;
+    public int       BaseStat       { get; set; }
+    public int       AdditionalStat { get; set; }
 
     #region [BaseStat] Increase, Decrease
 

@@ -4,11 +4,13 @@ using UnityEngine;
 
 public abstract class PlayerState
 {
-    private event Action OnBaseStateUpdate;
+    protected event Action OnBaseStateUpdate;
 
     protected Player             _player;
     protected PlayerStateMachine _stateMachine;
     protected EPlayerStateEnum   _state;
+
+    public EPlayerStateEnum GetStateEnum => _state;
 
     public PlayerState(Player player, PlayerStateMachine stateMachine, EPlayerStateEnum state)
     {

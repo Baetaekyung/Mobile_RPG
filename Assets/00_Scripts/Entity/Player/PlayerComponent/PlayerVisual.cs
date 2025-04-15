@@ -31,6 +31,8 @@ public class PlayerVisual : EntityVisual, IEntityCompoInit
         //    else
         //        GetAnimator.SetTrigger(playerAnimParam.GetAnimHash);
         //}
+
+        //Debug.Log($"Set animation to {state.ToString()}");
     }
 
     private void ClearCurrentAnimState()

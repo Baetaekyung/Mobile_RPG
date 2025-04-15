@@ -64,6 +64,11 @@ public class InputManager : MonoSingleton<InputManager>
             Direction -= new Vector2(0, 1);
         else if (Input.GetKeyUp(KeyCode.S))
             Direction += new Vector2(0, 1);
+
+        if(Input.GetMouseButtonDown(0))
+        {
+            
+        }
     }
 
     public void ChangeMainButtonAction(InputActionDataSO inputAction)
@@ -71,8 +76,11 @@ public class InputManager : MonoSingleton<InputManager>
         mainButton.SetButtonAction(inputAction);
     }
 
-    public InputButton GetInputButton()
+    public InputButton GetInputButton(int index = 0)
     {
-        return inputButtons.FirstOrDefault(button => button.IsEmptyButton());
+        if (inputButtons.Count <= index)
+            return null;
+
+        return inputButtons[index];
     }
 }

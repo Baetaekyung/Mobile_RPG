@@ -32,6 +32,9 @@ public class PlayerJumpState : PlayerAirState
     public override void UpdateState()
     {
         base.UpdateState();
+
+        if(_moveController.GetRbComponent.linearVelocityY < 0)
+            _stateMachine.ChangeState(EPlayerStateEnum.FALL);
     }
 
     private void JumpAction()

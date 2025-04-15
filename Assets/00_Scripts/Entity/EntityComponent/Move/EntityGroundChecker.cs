@@ -15,7 +15,7 @@ public class EntityGroundChecker : MonoBehaviour, IEntityCompo
         GroundCheckCasting();
     }
 
-    protected void GroundCheckCasting()
+    protected virtual void GroundCheckCasting()
     {
         RaycastHit2D hit = Physics2D.BoxCast(transform.position, groundCheckSize, 360f,
                     Vector2.down, groundCheckSize.y, LM_whatIsGround);
