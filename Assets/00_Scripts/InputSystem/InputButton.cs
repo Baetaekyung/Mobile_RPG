@@ -23,6 +23,12 @@ public class InputButton : MonoBehaviour, IPointerDownHandler
 
     public void SetButtonAction(InputActionDataSO inputActionData)
     {
+        if(inputActionData == null)
+        {
+            Debug.LogWarning($"Button can't set cause argument is null");
+            return;
+        }
+
         if(_inputActionData != null)
             _button.RemoveAllListeners();
 

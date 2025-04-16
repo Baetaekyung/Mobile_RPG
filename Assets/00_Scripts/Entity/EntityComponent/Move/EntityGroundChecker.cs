@@ -23,7 +23,6 @@ public class EntityGroundChecker : MonoBehaviour, IEntityCompo
         if (hit && _canCast)
         {
             OnGroundHit?.Invoke();
-            Debug.Log("Ground casted");
         }
     }
 

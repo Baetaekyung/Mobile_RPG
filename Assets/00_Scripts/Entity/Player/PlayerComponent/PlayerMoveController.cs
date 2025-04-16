@@ -3,15 +3,16 @@ using UnityEngine;
 
 public class PlayerMoveController : EntityMoveController, IEntityCompoInit
 {
-    public event Action OnJump;
+    public event Action OnJumpEvent;
 
-    [SerializeField] private JumpDataSO        jumpData;
     [SerializeField] private InputActionDataSO jumpAction;
+    [SerializeField] private JumpDataSO        jumpData;
+
     private Player _player;
     private int    _currentJumpCount = 0;
 
-    public JumpDataSO   GetJumpData => jumpData;
     public Rigidbody2D  GetRbComponent => _rbCompo;
+    public JumpDataSO   GetJumpData    => jumpData;
 
     public int CurrentJumpCount
     {
@@ -31,12 +32,12 @@ public class PlayerMoveController : EntityMoveController, IEntityCompoInit
 
     private void Start()
     {
-        InputManager.Inst.ChangeMainButtonAction(jumpAction);
+        InputManager.Inst.GetInputButton().SetButtonAction(jumpAction);
     }
 
     public override void Jump()
     {
-        OnJump?.Invoke();
+        OnJumpEvent?.Invoke();
     }
 
     public override void StopImmediately()

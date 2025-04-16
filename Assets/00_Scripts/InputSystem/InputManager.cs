@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 public class InputManager : MonoSingleton<InputManager>
 {
@@ -34,8 +33,22 @@ public class InputManager : MonoSingleton<InputManager>
 
         EditorTestCode();
 #endif
-
     }
+
+    public void ChangeMainButtonAction(InputActionDataSO inputAction)
+    {
+        mainButton.SetButtonAction(inputAction);
+    }
+
+    public InputButton GetInputButton(int index = 0)
+    {
+        if (inputButtons.Count <= index)
+            return null;
+
+        return inputButtons[index];
+    }
+
+    #region Editor Testing Code
 
     private void EditorTestCode()
     {
@@ -64,23 +77,7 @@ public class InputManager : MonoSingleton<InputManager>
             Direction -= new Vector2(0, 1);
         else if (Input.GetKeyUp(KeyCode.S))
             Direction += new Vector2(0, 1);
-
-        if(Input.GetMouseButtonDown(0))
-        {
-            
-        }
     }
 
-    public void ChangeMainButtonAction(InputActionDataSO inputAction)
-    {
-        mainButton.SetButtonAction(inputAction);
-    }
-
-    public InputButton GetInputButton(int index = 0)
-    {
-        if (inputButtons.Count <= index)
-            return null;
-
-        return inputButtons[index];
-    }
+    #endregion
 }

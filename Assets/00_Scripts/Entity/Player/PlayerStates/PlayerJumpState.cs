@@ -15,16 +15,14 @@ public class PlayerJumpState : PlayerAirState
     {
         base.EnterState();
 
-        _player.GetEntityCompo<PlayerGroundChecker>().OnGroundHit += HandleStateChangeToIdle;
-        _moveController.OnJump += HandleStateChangeToJump;
+        _moveController.OnJumpEvent += HandleStateChangeToJump;
 
         JumpAction();
     }
 
     public override void ExitState()
     {
-        _player.GetEntityCompo<PlayerGroundChecker>().OnGroundHit -= HandleStateChangeToIdle;
-        _moveController.OnJump -= HandleStateChangeToJump;
+        _moveController.OnJumpEvent -= HandleStateChangeToJump;
 
         base.ExitState();
     }

@@ -4,9 +4,9 @@ public class PlayerGroundChecker : EntityGroundChecker
     , IEntityCompoInit
     , IEntityCompoAfterInit
 {
-    private Player _player;
     private PlayerMoveController _moveController;
-    private Rigidbody2D _rbCompo;
+    private Rigidbody2D          _rbCompo;
+    private Player               _player;
 
     public bool IsPlayerFalling => _canCast;
 
@@ -22,14 +22,14 @@ public class PlayerGroundChecker : EntityGroundChecker
         _rbCompo = _moveController.GetRbComponent;
     }
 
-    private void Update()
-    {
-        _canCast = _rbCompo.linearVelocityY <= 0;
-    }
-
     private void Start()
     {
         OnGroundHit += _moveController.InitJumpCount;
+    }
+
+    private void Update()
+    {
+        _canCast = _rbCompo.linearVelocityY <= 0f;
     }
 
     private void OnDestroy()

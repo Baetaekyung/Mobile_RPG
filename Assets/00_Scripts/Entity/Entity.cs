@@ -21,7 +21,7 @@ public abstract class Entity : MonoBehaviour
         List<IEntityCompo> components = GetComponentsInChildren<IEntityCompo>(true).ToList();
         components.ForEach(compo => Debug.Log(compo.GetType().Name));
 
-        foreach (IEntityCompoInit component in components)
+        foreach (IEntityCompo component in components)
         {
             Type componentType = component.GetType();
             if (_components.ContainsKey(componentType))

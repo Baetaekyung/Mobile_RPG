@@ -9,9 +9,10 @@ public class EntityMoveController : MonoBehaviour, IEntityCompo
 
     protected Rigidbody2D _rbCompo;
 
-    public virtual void MoveEntityXDirection(int xDirection)
+    public virtual void MoveEntityXDirection(int xDirection, bool isAir = false)
     {
-        _rbCompo.linearVelocityX = xDirection * groundMoveSpeed;
+        float moveSpeed = isAir ? airMoveSpeed : groundMoveSpeed;
+        _rbCompo.linearVelocityX = xDirection * moveSpeed;
     }
 
     public virtual void StopImmediately()

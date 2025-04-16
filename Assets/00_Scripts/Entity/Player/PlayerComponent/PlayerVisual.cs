@@ -14,45 +14,49 @@ public class PlayerVisual : EntityVisual, IEntityCompoInit
 
     private void CollectAnimParams()
     {
-        //foreach (var parameter in animParams)
-        //    _animParams.Add(parameter.GetStateEnum, parameter);
+        foreach (var parameter in animParams)
+            _animParams.Add(parameter.GetStateEnum, parameter);
     }
 
     public void SetAnimation(EPlayerStateEnum state)
     {
-        //var playerAnimParam = GetPlayerAnimParam(state);
+        //Todo: Add else animation
+        if (state != EPlayerStateEnum.ATTACK)
+            return;
 
-        //if(playerAnimParam != null)
-        //{
-        //    ClearCurrentAnimState();
+        var playerAnimParam = GetPlayerAnimParam(state);
 
-        //    if (playerAnimParam.GetIsBoolAnimation)
-        //        GetAnimator.SetBool(playerAnimParam.GetAnimHash, true);
-        //    else
-        //        GetAnimator.SetTrigger(playerAnimParam.GetAnimHash);
-        //}
+        if (playerAnimParam != null)
+        {
+            ClearCurrentAnimState();
 
-        //Debug.Log($"Set animation to {state.ToString()}");
+            if (playerAnimParam.GetIsBoolAnimation)
+                GetAnimator.SetBool(playerAnimParam.GetAnimHash, true);
+            else
+                GetAnimator.SetTrigger(playerAnimParam.GetAnimHash);
+        }
+
+        Debug.Log($"Set animation to {state.ToString()}");
     }
 
     private void ClearCurrentAnimState()
     {
-        //foreach(var playerAnimParam in animParams)
-        //{
-        //    if (playerAnimParam.GetIsBoolAnimation)
-        //        GetAnimator.SetBool(playerAnimParam.GetAnimHash, false);
-        //}
+        foreach (var playerAnimParam in animParams)
+        {
+            if (playerAnimParam.GetIsBoolAnimation)
+                GetAnimator.SetBool(playerAnimParam.GetAnimHash, false);
+        }
     }
 
     public PlayerAnimParamSO GetPlayerAnimParam(EPlayerStateEnum stateEnum)
     {
-        //if(_animParams.TryGetValue(stateEnum, out var playerAnimParam))
-        //{
-        //    return playerAnimParam;
-        //}
+        if (_animParams.TryGetValue(stateEnum, out var playerAnimParam))
+        {
+            return playerAnimParam;
+        }
 
-        //Debug.LogWarning
-        //    ($"Player state의 Animation parameter so데이터가 존재하지 않음. state name: {stateEnum.ToString()}");
+        Debug.LogWarning
+            ($"Player state의 Animation parameter so데이터가 존재하지 않음. state name: {stateEnum.ToString()}");
         return null;
     }
 }

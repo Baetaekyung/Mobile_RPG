@@ -13,14 +13,14 @@ public class PlayerFallState : PlayerAirState
     {
         base.EnterState();
 
-        _moveController.OnJump += HandleChangeStateToJump;
+        _moveController.OnJumpEvent += HandleChangeStateToJump;
     }
 
     public override void ExitState()
     {
         base.ExitState();
 
-        _moveController.OnJump -= HandleChangeStateToJump;
+        _moveController.OnJumpEvent -= HandleChangeStateToJump;
     }
 
     private void HandleChangeStateToJump() => _stateMachine.ChangeState(EPlayerStateEnum.JUMP);

@@ -12,12 +12,12 @@ public abstract class PlayerGroundState : PlayerState, IBasePlayerState
     {
         _moveController = _player.GetEntityCompo<PlayerMoveController>();
 
-        _moveController.OnJump += ChangeToJumpState;
+        _moveController.OnJumpEvent += ChangeToJumpState;
     }
 
     public void ExitBaseState()
     {
-        _moveController.OnJump -= ChangeToJumpState;
+        _moveController.OnJumpEvent -= ChangeToJumpState;
     }
 
     private void ChangeToJumpState() => _stateMachine.ChangeState(EPlayerStateEnum.JUMP);
