@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 
-public class OverrideStat : MonoBehaviour
+[Serializable]
+public class OverrideStat
 {
     [field: SerializeField] public bool IsOverride;
 
@@ -9,7 +11,7 @@ public class OverrideStat : MonoBehaviour
 
     public StatSO GetOverrideStat()
     {
-        StatSO stat = Instantiate(baseStat);
+        StatSO stat = baseStat.GetRuntimeStat;
 
         stat.BaseStat = overrideValue;
 

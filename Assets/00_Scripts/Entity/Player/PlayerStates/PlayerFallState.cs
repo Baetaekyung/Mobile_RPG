@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class PlayerFallState : PlayerAirState
 {
-    private PlayerMoveController _moveController;
+    private const bool ISAIR = true;
+
     public PlayerFallState(Player player, PlayerStateMachine stateMachine, EPlayerStateEnum state)
         : base(player, stateMachine, state)
     {
-        _moveController = player.GetEntityCompo<PlayerMoveController>();
     }
 
     public override void EnterState()
@@ -16,6 +16,13 @@ public class PlayerFallState : PlayerAirState
         _moveController.OnJumpEvent += HandleChangeStateToJump;
     }
 
+    public override void FixedUpdateState()
+    {
+        base.FixedUpdateState();
+
+        MovePlayerOnFall();
+    }
+
     public override void ExitState()
     {
         base.ExitState();
@@ -23,5 +30,13 @@ public class PlayerFallState : PlayerAirState
         _moveController.OnJumpEvent -= HandleChangeStateToJump;
     }
 
-    private void HandleChangeStateToJump() => _stateMachine.ChangeState(EPlayerStateEnum.JUMP);
+    private void MovePlayerOnFall()
+    {
+        _moveController.MoveEntityXDirection(Mathf.RoundToInt(InputManager.Inst.Direction.x), ISAIR);
+    }
+
+    private void HandleChangeStateToJump()
+    {
+        _stateMachine.ChangeState(EPlayerStateEnum.JUMP);
+    }
 }

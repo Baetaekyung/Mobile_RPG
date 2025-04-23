@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class PlayerCombatController : MonoBehaviour, IEntityCompoInit
 {
-    public event Action OnAttack;
-
     [Header("입력 행동 SO들")]
     [SerializeField] private InputActionDataSO attackAction;
 

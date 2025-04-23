@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TMPro.EditorUtilities;
 using UnityEngine;
 
 public delegate void StatChangeEventHandler();
@@ -7,22 +6,50 @@ public delegate void StatChangeEventHandler();
 [CreateAssetMenu(menuName = "SO/Stat/Stat")]
 public class StatSO : ScriptableObject
 {
+    #region 스텟 변화 이벤트들
+
     public event StatChangeEventHandler OnBaseStatValueChanged;
     public event StatChangeEventHandler OnAdditionalStatValueChanged;
-    public event StatChangeEventHandler OnStatMultiplierChanged;
+    public event StatChangeEventHandler OnStatMultiplierValueChanged;
+
+    #endregion
+
+    #region 스텟 세부 변수들 (스텟 타입, 스텟 계수, 추가 스텟, 기본 스텟, 퍼센트 여부)
 
     [SerializeField] private EStatType statType;
+    [SerializeField] private float     statMultiplier = 1;
     [SerializeField] private int       baseStat;
     [SerializeField] private int       additionalStat;
-    [SerializeField] private int       statMultiplier;
+    [SerializeField] private bool      isPercent = false;
+
+    #endregion
+
+    #region 현재 버프된 계수를 가지고 있는 변수들
+
+    private float _buffedStatMultiplier;
+    private int   _buffedBaseStat;
+    private int   _buffedAdditionalStat;
+
+    #endregion
+
+    #region 현재 버프들 목록
 
     private readonly Dictionary<StatBuffDataSO, List<int>> _additiveAmountCollection = new();
     private readonly Dictionary<StatBuffDataSO, int>       _additiveLayerCollection  = new();
 
-    public EStatType GetStatType       => statType;
-    public StatSO    GetRuntimeStat    => Instantiate(this);
-    public int       BaseStat       { get; set; }
-    public int       AdditionalStat { get; set; }
+    #endregion
+
+    #region 프로퍼티들
+
+    public EStatType StatType       { get => statType; set => statType = value; }
+    public int       BaseStat       { get => baseStat; set => baseStat = value; }
+    public int       AdditionalStat { get => additionalStat; set => additionalStat = value; }
+    public float     StatMultiplier { get => statMultiplier; set => statMultiplier = value; }
+    public bool      IsPercent      { get => isPercent; set => isPercent = value; }
+
+    #endregion
+
+    public StatSO GetRuntimeStat => Instantiate(this);
 
     #region [BaseStat] Increase, Decrease
 
@@ -66,21 +93,21 @@ public class StatSO : ScriptableObject
     {
         statMultiplier += increaseAmount;
 
-        OnAdditionalStatValueChanged?.Invoke();
+        OnStatMultiplierValueChanged?.Invoke();
     }
 
-    public void DecreaseStatMultiplier(int decreaseAmount)
+    public void DecreaseStatMultiplier(float decreaseAmount)
     {
         statMultiplier -= decreaseAmount;
 
-        OnAdditionalStatValueChanged?.Invoke();
+        OnStatMultiplierValueChanged?.Invoke();
     }
 
     #endregion
 
     #region Stat Buff 관련
 
-    public void StatBuff(StatBuffDataSO additiveStatData)
+    public void BuffStat(StatBuffDataSO additiveStatData)
     {
         Debug.Assert(additiveStatData.GetStatType == statType,
             $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType.ToString()}");
@@ -98,6 +125,8 @@ public class StatSO : ScriptableObject
         // 처음 적용되는 버프라면 그냥 버프 레이어 1 추가하고 버프 량 추가하기
         else
             InitStatBuff(additiveStatData);
+
+        EffectBuffToStat();
     }
 
     public void RemoveStatBuff(StatBuffDataSO additiveStatData)
@@ -187,16 +216,25 @@ public class StatSO : ScriptableObject
     {
         int index;
 
+        DecreaseBaseStat(_buffedBaseStat);
+        DecreaseAdditionalStat(_buffedAdditionalStat);
+        DecreaseStatMultiplier(_buffedStatMultiplier);
+
+        _buffedBaseStat = 0;
+        _buffedAdditionalStat = 0;
+        _buffedStatMultiplier = 0f;
+
         foreach (var additiveBuffData in _additiveAmountCollection)
         {
             StatBuffDataSO statBuffData   = additiveBuffData.Key;
-            List<int>      statBuffAmount = additiveBuffData.Value;
-
             EStatBuffType  statBuffType   = statBuffData.GetStatBuffType;
+            List<int>      statBuffAmount = additiveBuffData.Value;
 
             for(index = 0; index < statBuffAmount.Count; index++)
                 BuffAtMatchStatType(index, statBuffData, statBuffAmount, statBuffType);
         }
+
+        Debug.Log("버프 적용됨");
     }
 
     private void BuffAtMatchStatType(
@@ -208,21 +246,35 @@ public class StatSO : ScriptableObject
         switch (statBuffType)
         {
             case EStatBuffType.BASE_STAT_BUFF:
-                baseStat += statBuffAmount[index];
+                IncreaseBaseStat(statBuffAmount[index]);
+                _buffedBaseStat += statBuffAmount[index];
                 break;
+
             case EStatBuffType.ADDITIONAL_STAT_BUFF:
-                additionalStat += statBuffAmount[index];
+                IncreaseAdditionalStat(statBuffAmount[index]);
+                _buffedAdditionalStat += statBuffAmount[index];
                 break;
+
             case EStatBuffType.STAT_MULTIPLIER_BUFF:
-                statMultiplier += statBuffAmount[index];
+                IncreaseStatMultiplier(statBuffAmount[index]);
+                _buffedStatMultiplier += statBuffAmount[index];
                 break;
+
             default:
                 Debug.Log($"StatBuffDataSO에 StatBuffType이 설정 되지 않았습니다. {statBuffData.GetBuffName}");
                 break;
         }
     }
 
-
-
     #endregion
+
+    public int GetValue()
+    {
+        int statAmount = Mathf.RoundToInt((BaseStat + AdditionalStat) * statMultiplier);
+
+        if (IsPercent)
+            return Mathf.RoundToInt(statAmount / 100f);
+
+        return statAmount;
+    }
 }

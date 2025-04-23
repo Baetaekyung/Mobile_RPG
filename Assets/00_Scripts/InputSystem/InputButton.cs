@@ -1,58 +1,72 @@
+using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Button))]
-public class InputButton : MonoBehaviour, IPointerDownHandler
+public class InputButton : MonoBehaviour, 
+    IPointerDownHandler, IPointerUpHandler
 {
+    #region 버튼 이벤트들
+
+    private event Action OnButtonInputEvent;
+    private event Action OnbuttonHoldEvent;
+
+    #endregion
+
+    [Header("Button UI들")]
     [SerializeField] private TextMeshProUGUI infoText;
     [SerializeField] private Image           infoIcon;
 
-    private Button _button;
+    [Header("버튼 홀드 관련 변수들")]
+    private Coroutine _holdRoutine = null;
+
     private InputActionDataSO _inputActionData;
 
-    private InputManager inputManaget;
-
-    private void Awake()
-    {
-        _button = GetComponent<Button>();
-
-        inputManaget = InputManager.Inst;
-    }
+    public bool IsRegisteredButton => _inputActionData != null;
 
     public void SetButtonAction(InputActionDataSO inputActionData)
     {
-        if(inputActionData == null)
-        {
-            Debug.LogWarning($"Button can't set cause argument is null");
-            return;
-        }
+        Debug.Assert(inputActionData != null,
+            $"Can't register button action cause InputActionDataSO argument is null");
 
-        if(_inputActionData != null)
-            _button.RemoveAllListeners();
-
-        _inputActionData = inputActionData;
-
-        _button.AddListener(inputActionData.OnPressEvent);
+        _inputActionData   = inputActionData;
+        OnButtonInputEvent = inputActionData.OnPressEvent;
 
         if(inputActionData.isHoldable == true)
-        {
-            _button.AddHoldListener(
-                inputActionData.OnHoldEvent, 
-                inputActionData.maxHoldTime, 
-                inputActionData.holdTick);
-        }
+            OnbuttonHoldEvent = inputActionData.OnHoldEvent;
 
         SetInfoUI(inputActionData);
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if(inputManaget.InputActionData)
+        Debug.Assert(_inputActionData != null, 
+            $"InputActionData is null, so can't invoke button event");
+        
+        OnButtonInputEvent?.Invoke();
+
+        if (_inputActionData.isHoldable)
+            _holdRoutine = StartCoroutine(nameof(HoldButtonRoutine));
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if(_holdRoutine != null)
+            StopCoroutine(_holdRoutine);
+    }
+
+    private IEnumerator HoldButtonRoutine()
+    {
+        WaitForSeconds holdTick = new WaitForSeconds(_inputActionData.holdTick);
+
+        //while(true)의 조건문 검사를 피하기 위해 for 사용
+        for( ; ; )
         {
-            SetButtonAction(inputManaget.InputActionData);
-            inputManaget.InputActionData = null;
+
+
+            OnbuttonHoldEvent?.Invoke();
         }
     }
 

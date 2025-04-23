@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Stat_Damage
   m_EditorClassIdentifier: 
   statType: 3
+  statMultiplier: 1
   baseStat: 4
   additionalStat: 0
-  statMultiplier: 0

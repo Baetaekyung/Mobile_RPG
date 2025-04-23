@@ -22,15 +22,9 @@ public class InputManager : MonoSingleton<InputManager>
 
     public InputActionDataSO InputActionData { get; set; }
 
-    protected override void Awake()
-    {
-        base.Awake();
-    }
-
     private void Update()
     {
 #if UNITY_EDITOR
-
         EditorTestCode();
 #endif
     }

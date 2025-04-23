@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Stat_MagicPower
   m_EditorClassIdentifier: 
   statType: 2
+  statMultiplier: 1
   baseStat: 4
   additionalStat: 0
-  statMultiplier: 0

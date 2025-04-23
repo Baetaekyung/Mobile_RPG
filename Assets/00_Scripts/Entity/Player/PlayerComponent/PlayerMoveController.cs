@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class PlayerMoveController : EntityMoveController, IEntityCompoInit
 {
+    private const float AIR_MOVE_INTERPOLATION = 3.5f;
+
     public event Action OnJumpEvent;
 
     [SerializeField] private InputActionDataSO jumpAction;
@@ -20,8 +22,10 @@ public class PlayerMoveController : EntityMoveController, IEntityCompoInit
         set => _currentJumpCount = value; 
     }
 
-    public void Initialize(Entity entity)
+    public override void Initialize(Entity entity)
     {
+        base.Initialize(entity);
+
         _player = entity as Player;
 
         _rbCompo = _player.GetComponent<Rigidbody2D>();
@@ -43,6 +47,14 @@ public class PlayerMoveController : EntityMoveController, IEntityCompoInit
     public override void StopImmediately()
     {
         _rbCompo.linearVelocity = Vector2.zero;
+    }
+
+    public override void MoveEntityXDirection(int xDirection, bool isAir = false)
+    {
+        if(isAir == false)
+            base.MoveEntityXDirection(xDirection);
+        else if (isAir == true)
+            _rbCompo.AddForceX(xDirection * airMoveSpeed * AIR_MOVE_INTERPOLATION, ForceMode2D.Force);
     }
 
     private void OnDestroy()

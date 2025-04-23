@@ -17,10 +17,13 @@ public class PlayerStateMachine
         _stateDictionary = new();
     }
 
-    public void ChangeState(EPlayerStateEnum newState)
+    public void ChangeState(EPlayerStateEnum newState, bool isAllowDebug = false)
     {
         if (_player.GetCanStateChange == false)
             return;
+
+        if(isAllowDebug)
+            Debug.Log($"State changed from {_currentState.GetStateEnum} to {newState.ToString()}");
 
         _currentState?.ExitState();
         SetState(newState);

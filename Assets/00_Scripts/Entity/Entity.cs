@@ -50,7 +50,6 @@ public abstract class Entity : MonoBehaviour
             .ForEach(component => component.AfterInitialize(this));
     }
 
-    /// <param name="addComponentIfNotFound">만약 직렬화 된 변수가 존재한다면 사용하지 말 것</param>
     public T GetEntityCompo<T>(bool addComponentIfNotFound = false) where T : Component, IEntityCompo
     {
         if(_components.TryGetValue(typeof(T), out IEntityCompo component))
