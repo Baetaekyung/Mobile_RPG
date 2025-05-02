@@ -1,7 +1,29 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public delegate void StatChangeEventHandler();
+
+[Serializable]
+public class StatSaveData : ISavable
+{
+    public string StatName;
+    public int    baseStat;
+    public int    additionalStatValue;
+    public float  statMultiplier;
+
+    public string SaveKey => StatName;
+
+    public StatSaveData(string name, int baseValue, int additionalValue, float multiplier)
+    {
+        StatName = name; 
+        baseStat = baseValue;
+        additionalStatValue = additionalValue;
+        statMultiplier = multiplier;
+    }
+
+    public void SaveData() => SaveManager.Save(SaveKey, this);
+}
 
 [CreateAssetMenu(menuName = "SO/Stat/Stat")]
 public class StatSO : ScriptableObject
@@ -17,18 +39,20 @@ public class StatSO : ScriptableObject
     #region 스텟 세부 변수들 (스텟 타입, 스텟 계수, 추가 스텟, 기본 스텟, 퍼센트 여부)
 
     [SerializeField] private EStatType statType;
-    [SerializeField] private float     statMultiplier = 1;
+    [SerializeField] private int       statMultiplierPercent;
     [SerializeField] private int       baseStat;
     [SerializeField] private int       additionalStat;
     [SerializeField] private bool      isPercent = false;
+
+    private StatSaveData _saveData;
 
     #endregion
 
     #region 현재 버프된 계수를 가지고 있는 변수들
 
-    private float _buffedStatMultiplier;
-    private int   _buffedBaseStat;
-    private int   _buffedAdditionalStat;
+    private int   _buffedStatMultiplier = 0;
+    private int   _buffedBaseStat       = 0;
+    private int   _buffedAdditionalStat = 0;
 
     #endregion
 
@@ -44,18 +68,26 @@ public class StatSO : ScriptableObject
     public EStatType StatType       { get => statType; set => statType = value; }
     public int       BaseStat       { get => baseStat; set => baseStat = value; }
     public int       AdditionalStat { get => additionalStat; set => additionalStat = value; }
-    public float     StatMultiplier { get => statMultiplier; set => statMultiplier = value; }
+    public int       StatMultiplier { get => statMultiplierPercent; set => statMultiplierPercent = value; }
     public bool      IsPercent      { get => isPercent; set => isPercent = value; }
 
     #endregion
 
     public StatSO GetRuntimeStat => Instantiate(this);
 
+    public void Initialize()
+    {
+        _saveData = new StatSaveData(statType.ToString(), baseStat, additionalStat, StatMultiplier);
+
+        AutoSaveManager.Inst.RegisterAutoSave(_saveData);
+    }
+
     #region [BaseStat] Increase, Decrease
 
     public void IncreaseBaseStat(int increaseAmount)
     {
         baseStat += increaseAmount;
+        _saveData.baseStat = baseStat;
 
         OnBaseStatValueChanged?.Invoke();
     }
@@ -63,6 +95,7 @@ public class StatSO : ScriptableObject
     public void DecreaseBaseStat(int decreaseAmount)
     {
         baseStat -= decreaseAmount;
+        _saveData.baseStat = baseStat;
 
         OnBaseStatValueChanged?.Invoke();
     }
@@ -74,6 +107,7 @@ public class StatSO : ScriptableObject
     public void IncreaseAdditionalStat(int increaseAmount)
     {
         additionalStat += increaseAmount;
+        _saveData.additionalStatValue = additionalStat;
 
         OnAdditionalStatValueChanged?.Invoke();
     }
@@ -81,6 +115,7 @@ public class StatSO : ScriptableObject
     public void DecreaseAdditionalStat(int decreaseAmount)
     {
         additionalStat -= decreaseAmount;
+        _saveData.additionalStatValue = additionalStat;
 
         OnAdditionalStatValueChanged?.Invoke();
     }
@@ -89,16 +124,18 @@ public class StatSO : ScriptableObject
 
     #region [StatMultiplier] Increase, Decrease
 
-    public void IncreaseStatMultiplier(int increaseAmount)
+    public void IncreaseStatMultiplierPercent(int increaseAmount)
     {
-        statMultiplier += increaseAmount;
+        statMultiplierPercent += increaseAmount;
+        _saveData.statMultiplier = statMultiplierPercent;
 
         OnStatMultiplierValueChanged?.Invoke();
     }
 
-    public void DecreaseStatMultiplier(float decreaseAmount)
+    public void DecreaseStatMultiplierPercent(int decreaseAmount)
     {
-        statMultiplier -= decreaseAmount;
+        statMultiplierPercent -= decreaseAmount;
+        _saveData.statMultiplier = statMultiplierPercent;
 
         OnStatMultiplierValueChanged?.Invoke();
     }
@@ -218,11 +255,11 @@ public class StatSO : ScriptableObject
 
         DecreaseBaseStat(_buffedBaseStat);
         DecreaseAdditionalStat(_buffedAdditionalStat);
-        DecreaseStatMultiplier(_buffedStatMultiplier);
+        DecreaseStatMultiplierPercent(_buffedStatMultiplier);
 
         _buffedBaseStat = 0;
         _buffedAdditionalStat = 0;
-        _buffedStatMultiplier = 0f;
+        _buffedStatMultiplier = 0;
 
         foreach (var additiveBuffData in _additiveAmountCollection)
         {
@@ -256,7 +293,7 @@ public class StatSO : ScriptableObject
                 break;
 
             case EStatBuffType.STAT_MULTIPLIER_BUFF:
-                IncreaseStatMultiplier(statBuffAmount[index]);
+                IncreaseStatMultiplierPercent(statBuffAmount[index]);
                 _buffedStatMultiplier += statBuffAmount[index];
                 break;
 
@@ -270,7 +307,12 @@ public class StatSO : ScriptableObject
 
     public int GetValue()
     {
-        int statAmount = Mathf.RoundToInt((BaseStat + AdditionalStat) * statMultiplier);
+        float percentToMultiplier = statMultiplierPercent / 100f;
+
+        int defaultValue = (BaseStat + AdditionalStat);
+        int additionalMultipliedValue = Mathf.RoundToInt(defaultValue * percentToMultiplier);
+
+        int statAmount = defaultValue + additionalMultipliedValue;
 
         if (IsPercent)
             return Mathf.RoundToInt(statAmount / 100f);

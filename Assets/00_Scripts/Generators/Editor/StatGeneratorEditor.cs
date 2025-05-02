@@ -28,7 +28,7 @@ public class StatGeneratorEditor : EditorWindow
         {
             EditorGUILayout.BeginHorizontal();
     
-            GUILayout.Label("백분율 스텟인가?");
+            GUILayout.Label("퍼센트 스텟인가?");
             _isPercent = EditorGUILayout.Toggle(_isPercent);
     
             EditorGUILayout.EndHorizontal();
