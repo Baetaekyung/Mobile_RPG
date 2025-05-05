@@ -10,11 +10,11 @@ public class StatSaveData : ISavable
     public string StatName;
     public int    baseStat;
     public int    additionalStatValue;
-    public float  statMultiplier;
+    public int    statMultiplier;
 
     public string SaveKey => StatName;
 
-    public StatSaveData(string name, int baseValue, int additionalValue, float multiplier)
+    public StatSaveData(string name, int baseValue, int additionalValue, int multiplier)
     {
         StatName = name; 
         baseStat = baseValue;
@@ -73,9 +73,15 @@ public class StatSO : ScriptableObject
 
     #endregion
 
-    public StatSO GetRuntimeStat => Instantiate(this);
+    public StatSO GetRuntimeStat() 
+    {
+        StatSO stat = Instantiate(this);
+        stat.Initialize();
 
-    public void Initialize()
+        return stat;
+    }
+
+    private void Initialize()
     {
         _saveData = new StatSaveData(statType.ToString(), baseStat, additionalStat, StatMultiplier);
 
@@ -147,7 +153,7 @@ public class StatSO : ScriptableObject
     public void BuffStat(StatBuffDataSO additiveStatData)
     {
         Debug.Assert(additiveStatData.GetStatType == statType,
-            $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType.ToString()}");
+            $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType}");
 
         // 현재 버프가 존재
         if (_additiveLayerCollection.TryGetValue(additiveStatData, out var layerAmount))
@@ -168,7 +174,7 @@ public class StatSO : ScriptableObject
 
     public void RemoveStatBuff(StatBuffDataSO additiveStatData)
     {
-        Debug.Assert(additiveStatData.GetStatType == statType, $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType.ToString()}");
+        Debug.Assert(additiveStatData.GetStatType == statType, $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType}");
 
         if (_additiveAmountCollection.TryGetValue(additiveStatData, out var amountList))
         {
@@ -194,6 +200,14 @@ public class StatSO : ScriptableObject
 
             _additiveAmountCollection[additiveStatData].RemoveAt(matchAmountIndex);
             _additiveLayerCollection[additiveStatData]--;
+
+            if (_additiveAmountCollection[additiveStatData].Count == 0)
+            {
+                _additiveAmountCollection.Remove(additiveStatData);
+                _additiveLayerCollection.Remove(additiveStatData);
+            }
+
+            EffectBuffToStat();
         }
         else
         {
@@ -203,7 +217,7 @@ public class StatSO : ScriptableObject
 
     private void InitStatBuff(StatBuffDataSO additiveStatData)
     {
-        Debug.Assert(additiveStatData.GetStatType == statType, $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType.ToString()}");
+        Debug.Assert(additiveStatData.GetStatType == statType, $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType}");
 
         _additiveLayerCollection.Add(additiveStatData, 1);
 
@@ -212,7 +226,7 @@ public class StatSO : ScriptableObject
 
     private void AddStatBuff(StatBuffDataSO additiveStatData)
     {
-        Debug.Assert(additiveStatData.GetStatType == statType, $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType.ToString()}");
+        Debug.Assert(additiveStatData.GetStatType == statType, $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType}");
 
         _additiveLayerCollection[additiveStatData]++;
 
@@ -222,7 +236,7 @@ public class StatSO : ScriptableObject
     private void AddMaxLayerStatBuff(StatBuffDataSO additiveStatData)
     {
         Debug.Assert(additiveStatData.GetStatType == statType,
-            $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType.ToString()}");
+            $"맞지 않는 스텟의 버프를 넣었다. 스텟 타입: {statType}");
 
         int minIncreaseAmount = int.MaxValue;
         int minAmountLayer = 0;
@@ -253,10 +267,6 @@ public class StatSO : ScriptableObject
     {
         int index;
 
-        DecreaseBaseStat(_buffedBaseStat);
-        DecreaseAdditionalStat(_buffedAdditionalStat);
-        DecreaseStatMultiplierPercent(_buffedStatMultiplier);
-
         _buffedBaseStat = 0;
         _buffedAdditionalStat = 0;
         _buffedStatMultiplier = 0;
@@ -283,17 +293,14 @@ public class StatSO : ScriptableObject
         switch (statBuffType)
         {
             case EStatBuffType.BASE_STAT_BUFF:
-                IncreaseBaseStat(statBuffAmount[index]);
                 _buffedBaseStat += statBuffAmount[index];
                 break;
 
             case EStatBuffType.ADDITIONAL_STAT_BUFF:
-                IncreaseAdditionalStat(statBuffAmount[index]);
                 _buffedAdditionalStat += statBuffAmount[index];
                 break;
 
             case EStatBuffType.STAT_MULTIPLIER_BUFF:
-                IncreaseStatMultiplierPercent(statBuffAmount[index]);
                 _buffedStatMultiplier += statBuffAmount[index];
                 break;
 
@@ -307,12 +314,12 @@ public class StatSO : ScriptableObject
 
     public int GetValue()
     {
-        float percentToMultiplier = statMultiplierPercent / 100f;
+        float percentToMultiplier = (statMultiplierPercent + _buffedStatMultiplier) / 100f;
 
         int defaultValue = (BaseStat + AdditionalStat);
         int additionalMultipliedValue = Mathf.RoundToInt(defaultValue * percentToMultiplier);
 
-        int statAmount = defaultValue + additionalMultipliedValue;
+        int statAmount = defaultValue + additionalMultipliedValue + _buffedBaseStat + _buffedAdditionalStat;
 
         if (IsPercent)
             return Mathf.RoundToInt(statAmount / 100f);

@@ -61,7 +61,7 @@ public class EntityStatComponent : MonoBehaviour, IEntityCompoInit
     {
         StatSO findStat = _overridedStats.FirstOrDefault(stat => stat.StatType == statType);
 
-        Debug.Assert(findStat != null, $"Stat can't find stat name: {statType.ToString()}");
+        Debug.Assert(findStat != null, $"Stat can't find stat name: {statType}");
         return findStat;
     }
 }

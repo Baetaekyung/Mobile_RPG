@@ -11,9 +11,10 @@ public class OverrideStat
 
     public StatSO GetOverrideStat()
     {
-        StatSO stat = baseStat.GetRuntimeStat;
+        StatSO stat = baseStat.GetRuntimeStat();
 
-        stat.BaseStat = overrideValue;
+        if (IsOverride)
+            stat.BaseStat = overrideValue;
 
         return stat;
     }

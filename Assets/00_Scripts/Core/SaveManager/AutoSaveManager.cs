@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -59,7 +60,14 @@ public class AutoSaveManager : MonoSingleton<AutoSaveManager>
         {
             foreach (ISavable savable in saveDatas)
             {
-                savable.SaveData();
+                try
+                {
+                    savable.SaveData();
+                }
+                catch (Exception exception)
+                {
+                    throw exception;
+                }
             }
 
             yield return YieldCache.GetWaitSec(autoSaveInterval);

@@ -2,18 +2,6 @@ using UnityEngine;
 
 public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {
-    public enum ESingletonType
-    {
-        DEFAULT,
-        DONTDESTROY,
-    }
-
-    public enum ESingletonDebugType
-    {
-        ALLOW_DEBUG,
-        DISALLOW_DEBUG
-    }
-
     private static T _instance;
 
     private static bool isShuttingDown = false;
@@ -27,8 +15,8 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if(isShuttingDown)
             {
-                Debug.LogWarning($"인스턴스를 발견 할 수 없음. Type: {typeof(T).Name}");
-                return default;
+                Debug.LogWarning($"게임이 종료되었다. Type: {typeof(T).Name}");
+                return default(T);
             }
 
             if(_instance == null)
@@ -54,7 +42,10 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
         }
         else if(_instance != this)
         {
+            Debug.LogWarning($"[Two singleton] singleton name: {typeof(T).Name}");
+
             Destroy(gameObject);
+            return;
         }
 
         gameObject.name = $"[Singleton] {typeof(T).Name}";
@@ -63,7 +54,7 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
             DontDestroyOnLoad(gameObject);
 
         if(debugType == ESingletonDebugType.DISALLOW_DEBUG)
-            gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInHierarchy;
+            gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
     }
 
     private void OnApplicationQuit()
@@ -75,5 +66,17 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         if (_instance == this)
             isShuttingDown = true;
+    }
+
+    public enum ESingletonType
+    {
+        DEFAULT,
+        DONTDESTROY,
+    }
+
+    public enum ESingletonDebugType
+    {
+        ALLOW_DEBUG,
+        DISALLOW_DEBUG
     }
 }

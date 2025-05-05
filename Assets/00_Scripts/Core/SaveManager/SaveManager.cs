@@ -1,5 +1,4 @@
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 
 public static class SaveManager
@@ -8,42 +7,43 @@ public static class SaveManager
 
     private static string GetFilePath(string fileName)
     {
-        return Path.Combine(Application.dataPath, fileName + ".sav");
+        return Path.Combine(Application.persistentDataPath, fileName + ".sav");
     }
 
     public static void Save<T>(string fileName, T data, bool useCrypto = false)
     {
-        string json = JsonUtility.ToJson(data);
-        string encrypted = string.Empty;
-
-        if (useCrypto)
+        if (data == null)
         {
-            encrypted = AESHelper.Encrypt(json);
+            Debug.LogWarning($"[{fileName}] 저장할 데이터가 null입니다.");
+            return;
         }
 
-        File.WriteAllText(GetFilePath(fileName), useCrypto ? encrypted : json);
-        Debug.Log($"You save the data to {fileName}, data: {data}");
+        string json = JsonUtility.ToJson(data, true);
+        if (useCrypto)
+            json = AESHelper.Encrypt(json);
+
+        File.WriteAllText(GetFilePath(fileName), json);
+        Debug.Log($"[SaveManager] Saved '{fileName}' (Encrypt: {useCrypto}) -> {json}");
     }
 
     public static T Load<T>(string fileName, bool useCrypto = false)
     {
         string path = GetFilePath(fileName);
-        string cryptoJson = string.Empty;
 
-        if (Exists(fileName) == false)
+        if (!Exists(fileName))
         {
-            Save(fileName, default(T));
+            File.WriteAllText(path, ""); // 빈 파일 생성
             return default;
         }
 
         string readData = File.ReadAllText(path);
+        if (string.IsNullOrEmpty(readData))
+            return default;
 
         if(useCrypto)
-        {
-            cryptoJson = AESHelper.Decrypt(readData);
-        }
+            readData = AESHelper.Decrypt(readData);
 
-        return JsonUtility.FromJson<T>(useCrypto ? cryptoJson : readData);
+        return JsonUtility.FromJson<T>(readData);
     }
 
     public static bool Exists(string fileName)
@@ -63,17 +63,27 @@ public static class SaveManager
 
     #region PlayerPrefs
 
-    public static void SetInt(string key, int data) => PlayerPrefs.SetInt(key, data);
+    public static void SetInt(string key, int data)
+    {
+        PlayerPrefs.SetInt(key, data);
+        PlayerPrefs.Save();
+    }
 
-    public static int GetInt(string key) => PlayerPrefs.GetInt(key, 0);
+    public static void SetFloat(string key, float data) 
+    {
+        PlayerPrefs.SetFloat(key, data);
+        PlayerPrefs.Save();
+    }
 
-    public static void SetFloat(string key, float data) => PlayerPrefs.SetFloat(key, data);
+    public static void SetString(string key, string data)
+    {
+        PlayerPrefs.SetString(key, data);
+        PlayerPrefs.Save();
+    }
 
-    public static float GetFloat(string key) => PlayerPrefs.GetFloat(key, 0f);
-
-    public static void SetString(string key, string data) => PlayerPrefs.SetString(key, data);
-
-    public static string GetString(string key) => PlayerPrefs.GetString(key, "");
+    public static int GetInt(string key)        => PlayerPrefs.GetInt(key, 0);
+    public static float GetFloat(string key)    => PlayerPrefs.GetFloat(key, 0f);
+    public static string GetString(string key)  => PlayerPrefs.GetString(key, "");
 
     #endregion
 }
