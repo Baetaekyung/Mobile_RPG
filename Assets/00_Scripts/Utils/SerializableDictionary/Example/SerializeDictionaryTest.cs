@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Test : MonoBehaviour
+public class SerializeDictionaryTest : MonoBehaviour
 {
     [SerializeField] private SerializableDictionary<string, Rigidbody> datas = new();
 }
