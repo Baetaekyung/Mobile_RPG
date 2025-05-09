@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class MonoGenericPool<T> : PoolBase<T> where T : MonoBehaviour, IPoolable
+public class MonoGenericPool<T> : PoolBase<T>, IPool where T : MonoBehaviour, IPoolable
 {
-    private T _prefab;
+    private GameObject _prefab;
 
-    public MonoGenericPool(T prefab, int initialSize, int poolMaxSize = 200) 
+    public MonoGenericPool(GameObject prefab, int initialSize, int poolMaxSize = 200) 
         : base(initialSize, poolMaxSize) 
     {
         _prefab = prefab;
+        Debug.Log(_prefab);
+
+        InitializePool(initialSize);
     }
 
     protected override T CreateInstance()
@@ -15,8 +18,22 @@ public class MonoGenericPool<T> : PoolBase<T> where T : MonoBehaviour, IPoolable
         if (IsValidToCreate() == false)
             return default(T);
 
-        T instance = Object.Instantiate(_prefab);
+        GameObject instance = Object.Instantiate(_prefab);
+        //instance.hideFlags = HideFlags.HideInHierarchy;
 
-        return instance;
+        Debug.Assert(instance.GetComponent<T>() != null, 
+            $"잘못된 타입 캐스팅, {instance.GetType()} to {typeof(T).Name}");
+
+        return instance as T;
+    }
+
+    IPoolable IPool.GetInstance()
+    {
+        return GetInstance();
+    }
+
+    void IPool.ReturnInstance(IPoolable poolable)
+    {
+        ReturnInstance(poolable);
     }
 }

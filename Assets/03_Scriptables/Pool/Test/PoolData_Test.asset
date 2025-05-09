@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b428ccf3321aac49a854ee6a782ce7e, type: 3}
+  m_Name: PoolData_Test
+  m_EditorClassIdentifier: 
+  initialSize: 20
+  maxSize: 200
+  go: {fileID: 7930381813545728182, guid: 00a1a47308d352541a21a4306995394a, type: 3}
