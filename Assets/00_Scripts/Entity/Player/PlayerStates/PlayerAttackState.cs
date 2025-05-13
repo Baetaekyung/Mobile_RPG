@@ -1,20 +1,17 @@
-using System.Threading;
 using UnityEngine;
 
 public class PlayerAttackState : PlayerState
 {
-    private Animator _animator;
-
     private PlayerAnimEventHandler _playerAnimEventHandler;
     private PlayerCombatController _playerCombatController;
-    private PlayerVisual           _playerVisual;
 
     private float _timer;
+
+    private bool _isHandlerInvoked = false;
 
     public PlayerAttackState(Player player, PlayerStateMachine stateMachine, EPlayerStateEnum state)
         : base(player, stateMachine, state)
     {
-        _playerVisual = player.GetEntityCompo<PlayerVisual>();
         _playerAnimEventHandler = player.GetEntityCompo<PlayerAnimEventHandler>();
         _playerCombatController = player.GetEntityCompo<PlayerCombatController>();
     }
@@ -23,14 +20,15 @@ public class PlayerAttackState : PlayerState
     {
         base.EnterState();
 
-        _animator = _playerVisual.GetAnimator;
-        _timer    = _animator.GetCurrentAnimatorStateInfo(0).length;
+        _isHandlerInvoked = false;
 
+        _timer    = 2f; // todo: 나중에 skillData로 skillDuration 받아서 사용
+
+        //_playerCombatController.InitBattleTimer();
         _playerCombatController.SetCanAttack(false);
-        _playerCombatController.InitBattleTimer();
 
-        _playerAnimEventHandler.OnAttackDelayEnd += HandleCanAttack;
-        _playerAnimEventHandler.OnAnimationEnd   += HandleStateChangeToIdle;
+        _playerAnimEventHandler.OnAnimationEnd += HandleCanAttack;
+        _playerAnimEventHandler.OnAnimationEnd += HandleStateChangeToIdle;
     }
 
     public override void UpdateState()
@@ -39,22 +37,26 @@ public class PlayerAttackState : PlayerState
 
         _timer -= Time.deltaTime;
 
-        if (_timer < 0f)
+        if (_timer <= 0f)
             _stateMachine.ChangeState(EPlayerStateEnum.IDLE);
     }
 
     public override void ExitState()
     {
-        _timer = 0f;
+        if (!_isHandlerInvoked)
+            HandleCanAttack();
 
-        HandleCanAttack();
-        _playerAnimEventHandler.OnAttackDelayEnd -= HandleCanAttack;
-        _playerAnimEventHandler.OnAnimationEnd   -= HandleStateChangeToIdle;
+        _playerAnimEventHandler.OnAnimationEnd -= HandleCanAttack;
+        _playerAnimEventHandler.OnAnimationEnd -= HandleStateChangeToIdle;
 
         base.ExitState();
     }
 
-    private void HandleCanAttack() => _playerCombatController.SetCanAttack(true);
+    private void HandleCanAttack() 
+    { 
+        _playerCombatController.SetCanAttack(true);
 
+        _isHandlerInvoked = true;
+    }
     private void HandleStateChangeToIdle() => _stateMachine.ChangeState(EPlayerStateEnum.IDLE);
 }

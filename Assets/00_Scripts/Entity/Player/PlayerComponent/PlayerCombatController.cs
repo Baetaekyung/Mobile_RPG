@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class PlayerCombatController : MonoBehaviour, IEntityCompoInit
@@ -9,6 +8,8 @@ public class PlayerCombatController : MonoBehaviour, IEntityCompoInit
     [Header("전투 시간 관련")]
     [SerializeField] private float battleTime;
     private float _battleTimer; // 추후 배틀 시간 동안 뭐 안되게 할 때 사용
+
+    //private Queue<> _skillDatas;
 
     private Player _player;
     private bool   _canAttack = true; // 플레이어의 공격이 종료 되었거나 중간에 공격 가능하도록 만들어야할때

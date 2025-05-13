@@ -14,7 +14,7 @@ public class PlayerMoveState : PlayerGroundState
     {
         base.UpdateState();
 
-        if(Mathf.Approximately(InputManager.Inst.Direction.x, 0f) == true)
+        if(Mathf.Approximately(_moveController.GetRbComponent.linearVelocity.sqrMagnitude, 0f))
         {
             _stateMachine.ChangeState(EPlayerStateEnum.IDLE);
         }

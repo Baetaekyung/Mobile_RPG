@@ -51,9 +51,9 @@ public class PlayerMoveController : EntityMoveController, IEntityCompoInit
 
     public override void MoveEntityXDirection(int xDirection, bool isAir = false)
     {
-        if(isAir == false)
+        if(!isAir)
             base.MoveEntityXDirection(xDirection);
-        else if (isAir == true)
+        else if (isAir)
             _rbCompo.AddForceX(xDirection * airMoveSpeed * AIR_MOVE_INTERPOLATION, ForceMode2D.Force);
     }
 
